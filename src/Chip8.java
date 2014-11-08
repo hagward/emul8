@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * Created by Anders on 2014-11-06.
@@ -16,18 +17,27 @@ public class Chip8 {
     private int[] stack;
     private int[] key;
 
-    public void initialize() {
+    public Chip8() {
+        mem = new int[4096];
+        reg = new int[16];
+        gfx = new int[64 * 32];
+        stack = new int[16];
+        key = new int[16];
+        reset();
+    }
+
+    public void reset() {
         pc = 0x200;
         sp = 0;
         opCode = 0;
         index = 0;
         delayTimer = 0;
         soundTimer = 0;
-        mem = new int[4096];
-        reg = new int[16];
-        gfx = new int[64 * 32];
-        stack = new int[16];
-        key = new int[16];
+        Arrays.fill(mem, 0);
+        Arrays.fill(reg, 0);
+        Arrays.fill(gfx, 0);
+        Arrays.fill(stack, 0);
+        Arrays.fill(key, 0);
     }
 
     public void loadGame(File file) {
@@ -56,6 +66,7 @@ public class Chip8 {
                     // 0NNN: Calls RCA 1802 program at address NNN.
                     default:
                         // TODO: complete.
+                        break;
                 }
                 break;
 
@@ -94,7 +105,7 @@ public class Chip8 {
             // 7XNN: Adds NN to VX.
             case 0x7000:
                 // TODO: is the modulo needed?
-                reg[x] = (reg[x] + (opCode & 0x00FF)) % 255;
+                reg[x] = (reg[x] + (opCode & 0x00FF)) % 256;
                 break;
 
             case 0x8000:
@@ -122,7 +133,7 @@ public class Chip8 {
                     // 8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
                     case 0x0004:
                         reg[0xF] = (reg[y] > (0xFF - reg[x])) ? 1 : 0;
-                        reg[x] = (reg[x] + reg[y]) % 255;
+                        reg[x] = (reg[x] + reg[y]) % 256;
                         pc += 2;
                         break;
 
@@ -130,7 +141,7 @@ public class Chip8 {
                     case 0x0005:
                         reg[0xF] = (reg[y] > reg[x]) ? 0 : 1;
                         // TODO: check that his doesn't become negative.
-                        reg[x] = (reg[x] - reg[y]) % 255;
+                        reg[x] = (reg[x] - reg[y]) % 256;
                         pc += 2;
                         break;
 
@@ -145,7 +156,7 @@ public class Chip8 {
                     case 0x0007:
                         reg[0xF] = (reg[x] > reg[y]) ? 0 : 1;
                         // TODO: check that this doesn't become negative.
-                        reg[x] = (reg[y] - reg[x]) % 255;
+                        reg[x] = (reg[y] - reg[x]) % 256;
                         break;
 
                     // 8XYE: Shifts VX left by one. VF is set to the value of the most significant bit of VX before the
@@ -156,6 +167,7 @@ public class Chip8 {
                         reg[x] <<= 1;
                         break;
                 }
+                break;
 
             // 9XY0: Skips the next instruction if VX doesn't equal VY.
             case 0x9000:
@@ -201,6 +213,7 @@ public class Chip8 {
                     default:
                         System.out.printf("Unknown opcode [0xE000]: 0x%x%n", opCode);
                 }
+                break;
 
             case 0xF000:
                 switch (opCode & 0x00FF) {
@@ -210,7 +223,7 @@ public class Chip8 {
                         break;
                     // FX0A: A key press is awaited, and then stored in VX.
                     case 0x000A:
-                            // TODO: complete.
+                        // TODO: complete.
                         break;
                     // FX15: Sets the delay timer to VX.
                     case 0x0015:
@@ -254,6 +267,7 @@ public class Chip8 {
                     default:
                         System.out.printf("Unknown opcode [0xF000]: 0x%x%n", opCode);
                 }
+                break;
 
             default:
                 System.out.printf("Unknown opcode: 0x%x%n", opCode);
@@ -270,9 +284,5 @@ public class Chip8 {
             }
             soundTimer--;
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 }
