@@ -8,16 +8,25 @@ public class Screen extends JPanel {
     private static final int WIDTH = 512;
     private static final int HEIGHT = 256;
 
+    private int[] gfx;
+
     public Screen() {
+        gfx = new int[64 * 32];
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
     }
 
     public void draw(int[] gfx) {
-        Graphics g = getGraphics();
-        g.setColor(Color.getHSBColor(0, 0, 14));
+        this.gfx = gfx;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        g.setColor(Color.darkGray);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        g.setColor(Color.getHSBColor(125, 61, 90));
+        g.setColor(Color.green);
         for (int y = 0; y < 32; y++) {
             for (int x = 0; x < 64; x++) {
                 for (int bit = 0; bit < 8; bit++) {
@@ -27,7 +36,5 @@ public class Screen extends JPanel {
                 }
             }
         }
-
-        paintComponent(g);
     }
 }

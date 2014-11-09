@@ -64,7 +64,7 @@ public class Chip8 {
         Arrays.fill(key, 0);
     }
 
-    public void loadGame(File file) {
+    public int loadGame(File file) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             int c;
@@ -72,9 +72,19 @@ public class Chip8 {
             while ((c = reader.read()) != -1) {
                 mem[i++] = c;
             }
-        } catch (IOException e) {
+            return i;
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+            return -1;
         }
+    }
+
+    public int loadGame(String s) {
+        byte[] bytes = s.getBytes();
+        for (int i = 0; i < bytes.length; i++) {
+            mem[i] = bytes[i];
+        }
+        return bytes.length;
     }
 
     public void emulateCycle() {
@@ -90,7 +100,9 @@ public class Chip8 {
                 switch (opCode & 0x00FF) {
                     // 00E0: Clears the screen.
                     case 0x00E0:
-                        // TODO: clear the screen.
+                        Arrays.fill(gfx, 0);
+                        gfxUpdated = true;
+                        pc += 2;
                         break;
                     // 00EE: Returns from subroutine.
                     case 0x00EE:
@@ -99,6 +111,7 @@ public class Chip8 {
                     // 0NNN: Calls RCA 1802 program at address NNN.
                     default:
                         // TODO: complete.
+                        pc = opCode & 0x0FFF;
                         break;
                 }
                 break;
@@ -117,28 +130,30 @@ public class Chip8 {
 
             // 3XNN: Skips the next instruction if VX equals NN.
             case 0x3000:
-                pc += (reg[x] == (opCode & 0x00FF)) ? 2 : 1;
+                pc += (reg[x] == (opCode & 0x00FF)) ? 4 : 2;
                 break;
 
             // 4XNN: Skips the next instruction if VX doesn't equal NN.
             case 0x4000:
-                pc += (reg[x] == (opCode & 0x00FF)) ? 1 : 2;
+                pc += (reg[x] != (opCode & 0x00FF)) ? 4 : 2;
                 break;
 
             // 5XY0: Skips the next instruction if VX equals VY.
             case 0x5000:
-                pc += (reg[x] == reg[y]) ? 2 : 1;
+                pc += (reg[x] == reg[y]) ? 4 : 2;
                 break;
 
             // 6XNN: Sets VX to NN.
             case 0x6000:
                 reg[x] = opCode & 0x00FF;
+                pc += 2;
                 break;
 
             // 7XNN: Adds NN to VX.
             case 0x7000:
                 // TODO: is the modulo needed?
                 reg[x] = (reg[x] + (opCode & 0x00FF)) % 256;
+                pc += 2;
                 break;
 
             case 0x8000:
@@ -175,6 +190,7 @@ public class Chip8 {
                         reg[0xF] = (reg[y] > reg[x]) ? 0 : 1;
                         // TODO: check that his doesn't become negative.
                         reg[x] = (reg[x] - reg[y]) % 256;
+                        assert reg[x] >= 0;
                         pc += 2;
                         break;
 
@@ -190,6 +206,7 @@ public class Chip8 {
                         reg[0xF] = (reg[x] > reg[y]) ? 0 : 1;
                         // TODO: check that this doesn't become negative.
                         reg[x] = (reg[y] - reg[x]) % 256;
+                        assert reg[x] >= 0;
                         break;
 
                     // 8XYE: Shifts VX left by one. VF is set to the value of the most significant bit of VX before the
@@ -200,12 +217,13 @@ public class Chip8 {
                         reg[x] <<= 1;
                         break;
                 }
+                pc += 2;
                 break;
 
             // 9XY0: Skips the next instruction if VX doesn't equal VY.
             case 0x9000:
                 if (reg[x] != reg[y]) {
-                    pc += 2;
+                    pc += 4;
                 }
                 break;
 
@@ -224,6 +242,7 @@ public class Chip8 {
             case 0xC000:
                 reg[x] = (int) (Math.random() * 10) << 8;
                 reg[x] |= opCode & 0x00FF;
+                pc += 2;
                 break;
 
             // DXYN: Sprites stored in memory at location in index register (I), maximum 8bits wide. Wraps around the
@@ -264,6 +283,7 @@ public class Chip8 {
                         break;
                     default:
                         System.out.printf("Unknown opcode [0xE000]: 0x%x%n", opCode);
+                        pc += 2;
                 }
                 break;
 
@@ -287,7 +307,7 @@ public class Chip8 {
                         break;
                     // FX1E: Adds VX to I.
                     case 0x001E:
-                        index = (index + reg[x]) % 255;
+                        index = (index + reg[x]) % 256;
                         break;
                     // FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F
                     // (in hexadecimal) are represented by a 4x5 font.
@@ -302,7 +322,6 @@ public class Chip8 {
                         mem[index] = reg[x] / 100;
                         mem[index + 1] = (reg[x] / 10) % 10;
                         mem[index + 2] = reg[x] % 10;
-                        pc += 2;
                         break;
                     // FX55: Stores V0 to VX in memory starting at address I.
                     case 0x0055:
@@ -319,10 +338,12 @@ public class Chip8 {
                     default:
                         System.out.printf("Unknown opcode [0xF000]: 0x%x%n", opCode);
                 }
+                pc += 2;
                 break;
 
             default:
                 System.out.printf("Unknown opcode: 0x%x%n", opCode);
+                pc += 2;
         }
 
         // Update timers.
