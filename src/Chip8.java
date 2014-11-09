@@ -1,10 +1,32 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
  * Created by Anders on 2014-11-06.
  */
 public class Chip8 {
+    private static int[] fontset = {
+        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    };
+
     private int opCode;
     private int index;
     private int pc;
@@ -13,9 +35,11 @@ public class Chip8 {
     private int soundTimer;
     private int[] mem;
     private int[] reg;
-    private int[] gfx;
+    public int[] gfx;
     private int[] stack;
     private int[] key;
+
+    public boolean gfxUpdated = true;
 
     public Chip8() {
         mem = new int[4096];
@@ -41,7 +65,16 @@ public class Chip8 {
     }
 
     public void loadGame(File file) {
-
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            int c;
+            int i = 0;
+            while ((c = reader.read()) != -1) {
+                mem[i++] = c;
+            }
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     public void emulateCycle() {
@@ -197,18 +230,37 @@ public class Chip8 {
             // screen. If when drawn, clears a pixel, register VF is set to 1 otherwise it is zero. All drawing is XOR
             // drawing (i.e. it toggles the screen pixels).
             case 0xD000:
-                // TODO: complete this case.
+                int height = opCode & 0x000F;
+                int pixels;
+
+                reg[0xF] = 0;
+                for (int yLine = 0; yLine < height; yLine++) {
+                    // Fetch a row of pixels.
+                    pixels = mem[index + yLine];
+                    // Scan through each of the eight bits in the row.
+                    for (int xLine = 0; xLine < 8; xLine++) {
+                        if ((pixels & (128 >> xLine)) != 0) {
+                            if (gfx[x + xLine + (y + yLine) * 64] == 1) {
+                                reg[0xF] = 1;
+                            }
+                            gfx[x + xLine + (y + yLine) * 64] ^= 1;
+                        }
+                    }
+                }
+
+                gfxUpdated = true;
+                pc += 2;
                 break;
 
             case 0xE000:
                 switch (opCode & 0x00FF) {
                     // EX9E: Skips the next instruction if the key stored in VX is pressed.
                     case 0x009E:
-                        // TODO: complete.
+                        pc += (key[reg[x]] != 0) ? 4 : 2;
                         break;
                     // EXA1: Skips the next instruction if the key stored in VX isn't pressed.
                     case 0x00A1:
-                        // TODO: complete.
+                        pc += (key[reg[x]] == 0) ? 4 : 2;
                         break;
                     default:
                         System.out.printf("Unknown opcode [0xE000]: 0x%x%n", opCode);
