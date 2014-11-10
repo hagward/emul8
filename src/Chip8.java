@@ -68,8 +68,10 @@ public class Chip8 {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             int c;
-            int i = 0;
+            int i = 512;
             while ((c = reader.read()) != -1) {
+//                mem[i++] = c >> 16;
+//                mem[i++] = c & 0xFFFF;
                 mem[i++] = c;
             }
             return i;
@@ -104,15 +106,16 @@ public class Chip8 {
                         gfxUpdated = true;
                         pc += 2;
                         break;
+
                     // 00EE: Returns from subroutine.
                     case 0x00EE:
-                        // TODO: return from subroutine.
+                        sp--;
+                        pc = stack[sp];
+                        pc += 2;
                         break;
-                    // 0NNN: Calls RCA 1802 program at address NNN.
+
                     default:
-                        // TODO: complete.
-                        pc = opCode & 0x0FFF;
-                        break;
+                        System.out.printf("Unknown opcode [0x0000]: 0x%x%n", opCode);
                 }
                 break;
 
@@ -216,6 +219,9 @@ public class Chip8 {
                         reg[0xF] = (reg[x] & 128) >> 7;
                         reg[x] <<= 1;
                         break;
+
+                    default:
+                        System.out.printf("Unknown opcode [0x8000]: 0x%x%n", opCode);
                 }
                 pc += 2;
                 break;
@@ -277,13 +283,14 @@ public class Chip8 {
                     case 0x009E:
                         pc += (key[reg[x]] != 0) ? 4 : 2;
                         break;
+
                     // EXA1: Skips the next instruction if the key stored in VX isn't pressed.
                     case 0x00A1:
                         pc += (key[reg[x]] == 0) ? 4 : 2;
                         break;
+
                     default:
                         System.out.printf("Unknown opcode [0xE000]: 0x%x%n", opCode);
-                        pc += 2;
                 }
                 break;
 
@@ -293,27 +300,33 @@ public class Chip8 {
                     case 0x0007:
                         reg[x] = delayTimer;
                         break;
+
                     // FX0A: A key press is awaited, and then stored in VX.
                     case 0x000A:
                         // TODO: complete.
                         break;
+
                     // FX15: Sets the delay timer to VX.
                     case 0x0015:
                         delayTimer = reg[x];
                         break;
+
                     // FX18: Sets the sound timer to VX.
                     case 0x0018:
                         soundTimer = reg[x];
                         break;
+
                     // FX1E: Adds VX to I.
                     case 0x001E:
                         index = (index + reg[x]) % 256;
                         break;
+
                     // FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F
                     // (in hexadecimal) are represented by a 4x5 font.
                     case 0x0029:
                         // TODO: complete.
                         break;
+
                     // FX33: Stores the Binary-coded decimal representation of VX, with the most significant of three
                     // digits at the address in I, the middle digit at I plus 1, and the least significant digit at I
                     // plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in
@@ -323,18 +336,21 @@ public class Chip8 {
                         mem[index + 1] = (reg[x] / 10) % 10;
                         mem[index + 2] = reg[x] % 10;
                         break;
+
                     // FX55: Stores V0 to VX in memory starting at address I.
                     case 0x0055:
                         for (int i = 0; i < x; i++) {
                             mem[index + i] = reg[i];
                         }
                         break;
+
                     // FX65: Fills V0 to VX with values from memory starting at address I.
                     case 0x0065:
                         for (int i = 0; i < x; i++) {
                             reg[i] = mem[index + i];
                         }
                         break;
+
                     default:
                         System.out.printf("Unknown opcode [0xF000]: 0x%x%n", opCode);
                 }
@@ -343,7 +359,6 @@ public class Chip8 {
 
             default:
                 System.out.printf("Unknown opcode: 0x%x%n", opCode);
-                pc += 2;
         }
 
         // Update timers.
