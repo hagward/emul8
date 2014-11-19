@@ -17,6 +17,8 @@ public class Screen extends JPanel {
 
     public void draw(int[] gfx) {
         this.gfx = gfx;
+        repaint();
+        System.out.println("draw() called");
     }
 
     @Override
