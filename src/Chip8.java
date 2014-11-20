@@ -91,6 +91,31 @@ public class Chip8 {
         return bytes.length;
     }
 
+    public void drawToImage(BufferedImage image) {
+        Graphics2D g = image.createGraphics();
+
+        g.setColor(Color.darkGray);
+        g.fillRect(0, 0, 512, 256);
+
+        g.setColor(Color.green);
+        for (int y = 0; y < 32; y++) {
+            for (int x = 0; x < 64; x++) {
+                for (int bit = 0; bit < 8; bit++) {
+                    if ((gfx[y*64 + x] & (128 >> bit)) != 0) {
+                        g.fillRect(x * 8 + bit, y * 8, 1, 8);
+                    }
+                }
+            }
+        }
+
+        g.dispose();
+        gfxUpdated = false;
+    }
+
+    public boolean isGfxUpdated() {
+        return gfxUpdated;
+    }
+
     public void emulateCycle() {
         int x = (opCode & 0x0F00) >> 8;
         int y = (opCode & 0x00F0) >> 4;
@@ -373,33 +398,5 @@ public class Chip8 {
             }
             soundTimer--;
         }
-    }
-
-    public boolean isGfxUpdated() {
-        return gfxUpdated;
-    }
-
-    public Image getImage() {
-        BufferedImage image = new BufferedImage(512, 256, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = image.createGraphics();
-
-        g.setColor(Color.darkGray);
-        g.fillRect(0, 0, 512, 256);
-
-        g.setColor(Color.green);
-        for (int y = 0; y < 32; y++) {
-            for (int x = 0; x < 64; x++) {
-                for (int bit = 0; bit < 8; bit++) {
-                    if ((gfx[y*64 + x] & (128 >> bit)) != 0) {
-                        g.fillRect(x * 8 + bit, y * 8, 1, 8);
-                    }
-                }
-            }
-        }
-
-        g.dispose();
-        gfxUpdated = false;
-
-        return image;
     }
 }

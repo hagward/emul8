@@ -22,7 +22,7 @@ public class Main {
         frame.setVisible(true);
 
         final Chip8 chip8 = new Chip8();
-        String fileName = "games/GUESS";
+        String fileName = "games/PONG";
         int fileSize = chip8.loadGame(new File(fileName));
         System.out.printf("Read %s of size %d.%n", fileName, fileSize);
 
@@ -31,7 +31,8 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 chip8.emulateCycle();
                 if (chip8.isGfxUpdated()) {
-                    screen.drawImage(chip8.getImage());
+                    chip8.drawToImage(screen.getImage());
+                    screen.repaint();
                 }
             }
         });

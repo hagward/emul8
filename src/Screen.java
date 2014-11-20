@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 /**
@@ -9,15 +10,15 @@ public class Screen extends JPanel {
     private static final int WIDTH = 512;
     private static final int HEIGHT = 256;
 
-    private Image image;
+    private BufferedImage image;
 
     public Screen() {
+        image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
     }
 
-    public void drawImage(Image image) {
-        this.image = image;
-        repaint();
+    public BufferedImage getImage() {
+        return image;
     }
 
     @Override
