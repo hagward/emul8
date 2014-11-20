@@ -22,7 +22,7 @@ public class Main {
         frame.setVisible(true);
 
         final Chip8 chip8 = new Chip8();
-        String fileName = "games/PONG";
+        String fileName = "games/GUESS";
         int fileSize = chip8.loadGame(new File(fileName));
         System.out.printf("Read %s of size %d.%n", fileName, fileSize);
 

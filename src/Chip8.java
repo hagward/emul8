@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -66,14 +66,14 @@ public class Chip8 {
 
     public int loadGame(File file) {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            int c;
-            int i = 512;
-            while ((c = reader.read()) != -1) {
-//                mem[i++] = c >> 16;
-//                mem[i++] = c & 0xFFFF;
-                mem[i++] = c;
+            FileInputStream in = new FileInputStream(file);
+            int nextByte;
+            int i = 0x200;
+            while ((nextByte = in.read()) != -1) {
+                mem[i++] = nextByte;
+                System.out.printf("filled 0x%x %d%n", nextByte, nextByte);
             }
+            in.close();
             return i;
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -90,11 +90,11 @@ public class Chip8 {
     }
 
     public void emulateCycle() {
-        int x = opCode & 0x0F00 >> 8;
-        int y = opCode & 0x00F0 >> 4;
+        int x = (opCode & 0x0F00) >> 8;
+        int y = (opCode & 0x00F0) >> 4;
 
         // Fetch.
-        opCode = mem[pc] << 8 | mem[pc + 1];
+        opCode = (mem[pc] << 8) | mem[pc + 1];
 
         // Decode.
         switch (opCode & 0xF000) {
@@ -104,19 +104,18 @@ public class Chip8 {
                     case 0x00E0:
                         Arrays.fill(gfx, 0);
                         gfxUpdated = true;
-                        pc += 2;
                         break;
 
                     // 00EE: Returns from subroutine.
                     case 0x00EE:
                         sp--;
                         pc = stack[sp];
-                        pc += 2;
                         break;
 
                     default:
                         System.out.printf("Unknown opcode [0x0000]: 0x%x%n", opCode);
                 }
+                pc += 2;
                 break;
 
             // 1NNN: Jumps to address NNN.
@@ -183,14 +182,14 @@ public class Chip8 {
 
                     // 8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
                     case 0x0004:
-                        reg[0xF] = (reg[y] > (0xFF - reg[x])) ? 1 : 0;
+                        reg[15] = (reg[y] > (0xFF - reg[x])) ? 1 : 0;
                         reg[x] = (reg[x] + reg[y]) % 256;
                         pc += 2;
                         break;
 
                     // 8XY5: VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
                     case 0x0005:
-                        reg[0xF] = (reg[y] > reg[x]) ? 0 : 1;
+                        reg[15] = (reg[y] > reg[x]) ? 0 : 1;
                         // TODO: check that his doesn't become negative.
                         reg[x] = (reg[x] - reg[y]) % 256;
                         assert reg[x] >= 0;
@@ -200,13 +199,13 @@ public class Chip8 {
                     // 8XY6: Shifts VX right by one. VF is set to the value of the least significant bit of VX before
                     // the shift.
                     case 0x0006:
-                        reg[0xF] = reg[x] & 1;
+                        reg[15] = reg[x] & 1;
                         reg[x] >>= 1;
                         break;
 
                     // 8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
                     case 0x0007:
-                        reg[0xF] = (reg[x] > reg[y]) ? 0 : 1;
+                        reg[15] = (reg[x] > reg[y]) ? 0 : 1;
                         // TODO: check that this doesn't become negative.
                         reg[x] = (reg[y] - reg[x]) % 256;
                         assert reg[x] >= 0;
@@ -216,7 +215,7 @@ public class Chip8 {
                     // shift
                     case 0x000E:
                         // TODO: really 7 steps?
-                        reg[0xF] = (reg[x] & 128) >> 7;
+                        reg[15] = (reg[x] & 128) >> 7;
                         reg[x] <<= 1;
                         break;
 
