@@ -26,13 +26,12 @@ public class Main {
         int fileSize = chip8.loadGame(new File(fileName));
         System.out.printf("Read %s of size %d.%n", fileName, fileSize);
 
-        Timer timer = new Timer(40, new ActionListener() {
+        Timer timer = new Timer(200, new ActionListener() { // should be set to 40
             @Override
             public void actionPerformed(ActionEvent e) {
                 chip8.emulateCycle();
-                if (chip8.gfxUpdated) {
-                    screen.draw(chip8.gfx);
-                    chip8.gfxUpdated = false;
+                if (chip8.isGfxUpdated()) {
+                    screen.drawImage(chip8.getImage());
                 }
             }
         });

@@ -1,3 +1,6 @@
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageProducer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,11 +38,10 @@ public class Chip8 {
     private int soundTimer;
     private int[] mem;
     private int[] reg;
-    public int[] gfx;
+    private int[] gfx;
     private int[] stack;
     private int[] key;
-
-    public boolean gfxUpdated = true;
+    private boolean gfxUpdated;
 
     public Chip8() {
         mem = new int[4096];
@@ -57,6 +59,7 @@ public class Chip8 {
         index = 0;
         delayTimer = 0;
         soundTimer = 0;
+        gfxUpdated = true;
         Arrays.fill(mem, 0);
         Arrays.fill(reg, 0);
         Arrays.fill(gfx, 0);
@@ -71,7 +74,6 @@ public class Chip8 {
             int i = 0x200;
             while ((nextByte = in.read()) != -1) {
                 mem[i++] = nextByte;
-                System.out.printf("filled 0x%x %d%n", nextByte, nextByte);
             }
             in.close();
             return i;
@@ -257,7 +259,7 @@ public class Chip8 {
                 int height = opCode & 0x000F;
                 int pixels;
 
-                reg[0xF] = 0;
+                reg[15] = 0;
                 for (int yLine = 0; yLine < height; yLine++) {
                     // Fetch a row of pixels.
                     pixels = mem[index + yLine];
@@ -265,7 +267,7 @@ public class Chip8 {
                     for (int xLine = 0; xLine < 8; xLine++) {
                         if ((pixels & (128 >> xLine)) != 0) {
                             if (gfx[x + xLine + (y + yLine) * 64] == 1) {
-                                reg[0xF] = 1;
+                                reg[15] = 1;
                             }
                             gfx[x + xLine + (y + yLine) * 64] ^= 1;
                         }
@@ -371,5 +373,33 @@ public class Chip8 {
             }
             soundTimer--;
         }
+    }
+
+    public boolean isGfxUpdated() {
+        return gfxUpdated;
+    }
+
+    public Image getImage() {
+        BufferedImage image = new BufferedImage(512, 256, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+
+        g.setColor(Color.darkGray);
+        g.fillRect(0, 0, 512, 256);
+
+        g.setColor(Color.green);
+        for (int y = 0; y < 32; y++) {
+            for (int x = 0; x < 64; x++) {
+                for (int bit = 0; bit < 8; bit++) {
+                    if ((gfx[y*64 + x] & (128 >> bit)) != 0) {
+                        g.fillRect(x * 8 + bit, y * 8, 1, 8);
+                    }
+                }
+            }
+        }
+
+        g.dispose();
+        gfxUpdated = false;
+
+        return image;
     }
 }
