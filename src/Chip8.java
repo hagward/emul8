@@ -65,6 +65,10 @@ public class Chip8 {
         Arrays.fill(gfx, 0);
         Arrays.fill(stack, 0);
         Arrays.fill(key, 0);
+
+        for (int i = 0; i < 80; i++) {
+            mem[i] = fontset[i];
+        }
     }
 
     public int loadGame(File file) {
@@ -76,7 +80,7 @@ public class Chip8 {
                 mem[i++] = nextByte;
             }
             in.close();
-            return i;
+            return i - 0x200;
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
             return -1;
@@ -102,7 +106,7 @@ public class Chip8 {
             for (int x = 0; x < 64; x++) {
                 for (int bit = 0; bit < 8; bit++) {
                     if ((gfx[y*64 + x] & (128 >> bit)) != 0) {
-                        g.fillRect(x * 8 + bit, y * 8, 1, 8);
+                        g.fillRect(x * 8 + bit, y * 8, 8, 8);
                     }
                 }
             }
@@ -217,7 +221,6 @@ public class Chip8 {
                     // 8XY5: VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
                     case 0x0005:
                         reg[15] = (reg[y] > reg[x]) ? 0 : 1;
-                        // TODO: check that his doesn't become negative.
                         reg[x] = (reg[x] - reg[y]) % 256;
                         assert reg[x] >= 0;
                         pc += 2;
@@ -233,7 +236,6 @@ public class Chip8 {
                     // 8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
                     case 0x0007:
                         reg[15] = (reg[x] > reg[y]) ? 0 : 1;
-                        // TODO: check that this doesn't become negative.
                         reg[x] = (reg[y] - reg[x]) % 256;
                         assert reg[x] >= 0;
                         break;
@@ -241,8 +243,7 @@ public class Chip8 {
                     // 8XYE: Shifts VX left by one. VF is set to the value of the most significant bit of VX before the
                     // shift
                     case 0x000E:
-                        // TODO: really 7 steps?
-                        reg[15] = (reg[x] & 128) >> 7;
+                        reg[15] = reg[x] >> 7;
                         reg[x] <<= 1;
                         break;
 
@@ -277,7 +278,7 @@ public class Chip8 {
                 pc += 2;
                 break;
 
-            // DXYN: Sprites stored in memory at location in index register (I), maximum 8bits wide. Wraps around the
+            // DXYN: Sprites stored in memory at location in index register (I), maximum 8 bits wide. Wraps around the
             // screen. If when drawn, clears a pixel, register VF is set to 1 otherwise it is zero. All drawing is XOR
             // drawing (i.e. it toggles the screen pixels).
             case 0xD000:
@@ -329,7 +330,18 @@ public class Chip8 {
 
                     // FX0A: A key press is awaited, and then stored in VX.
                     case 0x000A:
-                        // TODO: complete.
+                        boolean keyPress = false;
+
+                        for (int i = 0; i < 16; i++) {
+                            if (key[i] != 0) {
+                                reg[x] = i;
+                                keyPress = true;
+                            }
+                        }
+
+                        if (!keyPress) {
+                            return;
+                        }
                         break;
 
                     // FX15: Sets the delay timer to VX.
@@ -350,7 +362,7 @@ public class Chip8 {
                     // FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F
                     // (in hexadecimal) are represented by a 4x5 font.
                     case 0x0029:
-                        // TODO: complete.
+                        index = reg[x] * 5;
                         break;
 
                     // FX33: Stores the Binary-coded decimal representation of VX, with the most significant of three

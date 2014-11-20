@@ -22,9 +22,9 @@ public class Main {
         frame.setVisible(true);
 
         final Chip8 chip8 = new Chip8();
-        String fileName = "games/PONG";
+        String fileName = "games/MAZE";
         int fileSize = chip8.loadGame(new File(fileName));
-        System.out.printf("Read %s of size %d.%n", fileName, fileSize);
+        System.out.printf("Read %s of size %d bytes.%n", fileName, fileSize);
 
         Timer timer = new Timer(200, new ActionListener() { // should be set to 40
             @Override
