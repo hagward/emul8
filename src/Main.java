@@ -22,9 +22,27 @@ public class Main {
         frame.setVisible(true);
 
         final Chip8 chip8 = new Chip8();
-        String fileName = "games/MAZE";
+        String fileName = "games/PONG";
         int fileSize = chip8.loadGame(new File(fileName));
         System.out.printf("Read %s of size %d bytes.%n", fileName, fileSize);
+
+        frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    System.exit(0);
+                }
+                chip8.keyPress(e.getKeyChar());
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                chip8.keyRelease(e.getKeyChar());
+            }
+        });
 
         Timer timer = new Timer(200, new ActionListener() { // should be set to 40
             @Override

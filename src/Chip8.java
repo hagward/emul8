@@ -87,14 +87,6 @@ public class Chip8 {
         }
     }
 
-    public int loadGame(String s) {
-        byte[] bytes = s.getBytes();
-        for (int i = 0; i < bytes.length; i++) {
-            mem[i] = bytes[i];
-        }
-        return bytes.length;
-    }
-
     public void drawToImage(BufferedImage image) {
         Graphics2D g = image.createGraphics();
 
@@ -114,6 +106,52 @@ public class Chip8 {
 
         g.dispose();
         gfxUpdated = false;
+    }
+
+    public void keyPress(char keyChar) {
+        if (keyChar == '1') key[1] = 1;
+        else if (keyChar == '2') key[2] = 1;
+        else if (keyChar == '3') key[3] = 1;
+        else if (keyChar == '4') key[12] = 1;
+
+        else if (keyChar == 'q') key[4] = 1;
+        else if (keyChar == 'w') key[5] = 1;
+        else if (keyChar == 'e') key[6] = 1;
+        else if (keyChar == 'r') key[13] = 1;
+
+        else if (keyChar == 'a') key[7] = 1;
+        else if (keyChar == 's') key[8] = 1;
+        else if (keyChar == 'd') key[9] = 1;
+        else if (keyChar == 'f') key[14] = 1;
+
+        else if (keyChar == 'z') key[10] = 1;
+        else if (keyChar == 'x') key[0] = 1;
+        else if (keyChar == 'c') key[11] = 1;
+        else if (keyChar == 'v') key[15] = 1;
+
+        System.out.println(keyChar);
+    }
+
+    public void keyRelease(char keyChar) {
+        if (keyChar == '1') key[1] = 1;
+        else if (keyChar == '2') key[2] = 1;
+        else if (keyChar == '3') key[3] = 1;
+        else if (keyChar == '4') key[12] = 1;
+
+        else if (keyChar == 'q') key[4] = 1;
+        else if (keyChar == 'w') key[5] = 1;
+        else if (keyChar == 'e') key[6] = 1;
+        else if (keyChar == 'r') key[13] = 1;
+
+        else if (keyChar == 'a') key[7] = 1;
+        else if (keyChar == 's') key[8] = 1;
+        else if (keyChar == 'd') key[9] = 1;
+        else if (keyChar == 'f') key[14] = 1;
+
+        else if (keyChar == 'z') key[10] = 1;
+        else if (keyChar == 'x') key[0] = 1;
+        else if (keyChar == 'c') key[11] = 1;
+        else if (keyChar == 'v') key[15] = 1;
     }
 
     public boolean isGfxUpdated() {
