@@ -44,7 +44,7 @@ public class Main {
             }
         });
 
-        Timer timer = new Timer(200, new ActionListener() { // should be set to 40
+        Timer timer = new Timer(40, new ActionListener() { // should be set to 40
             @Override
             public void actionPerformed(ActionEvent e) {
                 chip8.emulateCycle();

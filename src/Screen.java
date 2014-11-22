@@ -25,5 +25,6 @@ public class Screen extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(image, 0, 0, null);
+        System.out.println("repainted");
     }
 }

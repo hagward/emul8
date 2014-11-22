@@ -66,9 +66,7 @@ public class Chip8 {
         }
 
         // Load font set.
-        for (int i = 0; i < 80; i++) {
-            mem[i] = fontSet[i];
-        }
+        System.arraycopy(fontSet, 0, mem, 0, 80);
     }
 
     public int loadGame(File file) {
@@ -223,9 +221,7 @@ public class Chip8 {
 
             // 7XNN: Adds NN to VX.
             case 0x7000:
-                // TODO: is the modulo needed?
-//                reg[x] = (reg[x] + (opCode & 0x00FF)) % 256;
-                reg[x] += opCode & 0x00FF;
+                reg[x] = (reg[x] + (opCode & 0x00FF)) % (1 << 8);
                 pc += 2;
                 break;
 
@@ -258,23 +254,17 @@ public class Chip8 {
                     // 8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
                     case 0x0004:
                         reg[0xF] = (reg[y] > (0xFF - reg[x])) ? 1 : 0;
-//                        reg[x] = (reg[x] + reg[y]) % 256;
-                        reg[x] += reg[y];
-
-                        assert reg[x] < 256;
-
+                        reg[x] = (reg[x] + reg[y]) % (1 << 8);
                         pc += 2;
                         break;
 
                     // 8XY5: VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
                     case 0x0005:
                         reg[0xF] = (reg[y] > reg[x]) ? 0 : 1;
-//                        reg[x] = (reg[x] - reg[y]) % 256;
-                        reg[x] -= reg[y];
-
-                        assert reg[x] >= 0;
-                        assert reg[x] < 256;
-
+                        reg[x] = (reg[x] - reg[y]) % (1 << 8);
+                        if (reg[x] < 0) {
+                            reg[x] += (1 << 8);
+                        }
                         pc += 2;
                         break;
 
@@ -289,11 +279,10 @@ public class Chip8 {
                     // 8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
                     case 0x0007:
                         reg[0xF] = (reg[x] > reg[y]) ? 0 : 1;
-//                        reg[x] = (reg[y] - reg[x]) % 256;
-                        reg[x] = reg[y] - reg[x];
-
-                        assert reg[x] >= 0;
-
+                        reg[x] = (reg[y] - reg[x]) % (1 << 8);
+                        if (reg[x] < 0) {
+                            reg[x] += (1 << 8);
+                        }
                         pc += 2;
                         break;
 
@@ -328,8 +317,6 @@ public class Chip8 {
 
             // CXNN: Sets VX to a random number and NN.
             case 0xC000:
-//                reg[x] = (int) (Math.random() * 10) << 8;
-//                reg[x] |= opCode & 0x00FF;
                 reg[x] = (int) (Math.random() * 256);
                 reg[x] &= opCode & 0x00FF;
                 pc += 2;
@@ -421,8 +408,7 @@ public class Chip8 {
                     // FX1E: Adds VX to I.
                     case 0x001E:
                         reg[0xF] = (index + reg[x] > 0xFFF) ? 1 : 0;
-//                        index = (index + reg[x]) % 256;
-                        index += reg[x];
+                        index = (index + reg[x]) % (1 << 16);
                         pc += 2;
                         break;
 
@@ -440,16 +426,13 @@ public class Chip8 {
                     case 0x0033:
                         mem[index] = reg[x] / 100;
                         mem[index + 1] = (reg[x] / 10) % 10;
-//                        mem[index + 2] = reg[x] % 10;
                         mem[index + 2] = (reg[x] % 100) % 10;
                         pc += 2;
                         break;
 
                     // FX55: Stores V0 to VX in memory starting at address I.
                     case 0x0055:
-                        for (int i = 0; i < x; i++) {
-                            mem[index + i] = reg[i];
-                        }
+                        System.arraycopy(reg, 0, mem, index, x);
 
                         // When the operation is done, for some reason, index is set to index + x + 1.
                         index += x + 1;
@@ -458,9 +441,7 @@ public class Chip8 {
 
                     // FX65: Fills V0 to VX with values from memory starting at address I.
                     case 0x0065:
-                        for (int i = 0; i < x; i++) {
-                            reg[i] = mem[index + i];
-                        }
+                        System.arraycopy(mem, index, reg, 0, x);
 
                         index += x + 1;
                         pc += 2;
