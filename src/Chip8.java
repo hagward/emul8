@@ -1,17 +1,14 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageProducer;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.util.Arrays;
 
 /**
  * Created by Anders on 2014-11-06.
  */
 public class Chip8 {
-    private static int[] fontset = {
+    private static int[] fontSet = {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -38,7 +35,7 @@ public class Chip8 {
     private int soundTimer;
     private int[] mem;
     private int[] reg;
-    private int[] gfx;
+    private int[][] gfx;
     private int[] stack;
     private int[] key;
     private boolean gfxUpdated;
@@ -46,7 +43,7 @@ public class Chip8 {
     public Chip8() {
         mem = new int[4096];
         reg = new int[16];
-        gfx = new int[64 * 32];
+        gfx = new int[32][64];
         stack = new int[16];
         key = new int[16];
         reset();
@@ -62,12 +59,15 @@ public class Chip8 {
         gfxUpdated = true;
         Arrays.fill(mem, 0);
         Arrays.fill(reg, 0);
-        Arrays.fill(gfx, 0);
         Arrays.fill(stack, 0);
         Arrays.fill(key, 0);
+        for (int[] row : gfx) {
+            Arrays.fill(row, 0);
+        }
 
+        // Load font set.
         for (int i = 0; i < 80; i++) {
-            mem[i] = fontset[i];
+            mem[i] = fontSet[i];
         }
     }
 
@@ -97,8 +97,8 @@ public class Chip8 {
         for (int y = 0; y < 32; y++) {
             for (int x = 0; x < 64; x++) {
                 for (int bit = 0; bit < 8; bit++) {
-                    if ((gfx[y*64 + x] & (128 >> bit)) != 0) {
-                        g.fillRect(x * 8 + bit, y * 8, 8, 8);
+                    if ((gfx[y][x] & (128 >> bit)) != 0) {
+                        g.fillRect(x * 8 + bit * 8, y * 8, 8, 8);
                     }
                 }
             }
@@ -128,8 +128,6 @@ public class Chip8 {
         else if (keyChar == 'x') key[0] = 1;
         else if (keyChar == 'c') key[11] = 1;
         else if (keyChar == 'v') key[15] = 1;
-
-        System.out.println(keyChar);
     }
 
     public void keyRelease(char keyChar) {
@@ -171,7 +169,9 @@ public class Chip8 {
                 switch (opCode & 0x00FF) {
                     // 00E0: Clears the screen.
                     case 0x00E0:
-                        Arrays.fill(gfx, 0);
+                        for (int[] row : gfx) {
+                            Arrays.fill(row, 0);
+                        }
                         gfxUpdated = true;
                         pc += 2;
                         break;
@@ -349,10 +349,10 @@ public class Chip8 {
                     // Scan through each of the eight bits in the row.
                     for (int xLine = 0; xLine < 8; xLine++) {
                         if ((pixels & (128 >> xLine)) != 0) {
-                            if (gfx[x + xLine + (y + yLine) * 64] == 1) {
+                            if (gfx[y + yLine][x + xLine] == 1) {
                                 reg[0xF] = 1;
                             }
-                            gfx[x + xLine + (y + yLine) * 64] ^= 1;
+                            gfx[y + yLine][x + xLine] ^= 1;
                         }
                     }
                 }
