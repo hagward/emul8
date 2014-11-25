@@ -5,14 +5,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Screen extends JPanel {
-    private static final int WIDTH = 512;
-    private static final int HEIGHT = 256;
-
     private final BufferedImage image;
 
-    public Screen() {
-        image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+    public Screen(int width, int height) {
+        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        setPreferredSize(new Dimension(width, height));
     }
 
     public BufferedImage getImage() {

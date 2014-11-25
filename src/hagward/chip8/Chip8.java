@@ -7,7 +7,7 @@ import java.io.FileInputStream;
 import java.util.Arrays;
 
 public class Chip8 {
-    private static final int[] fontSet = {
+    private static final int[] FONT_SET = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
             0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -26,6 +26,10 @@ public class Chip8 {
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
+    public static final int SCREEN_WIDTH = 64;
+    public static final int SCREEN_HEIGHT = 32;
+    public static final int SCREEN_MODIFIER = 10;
+
     private int opCode;
     private int index;
     private int pc;
@@ -42,7 +46,7 @@ public class Chip8 {
     public Chip8() {
         mem = new int[4096];
         reg = new int[16];
-        gfx = new int[32][64];
+        gfx = new int[SCREEN_HEIGHT][SCREEN_WIDTH];
         stack = new int[16];
         key = new int[16];
         reset();
@@ -65,10 +69,10 @@ public class Chip8 {
         }
 
         // Load font set.
-        System.arraycopy(fontSet, 0, mem, 0, 80);
+        System.arraycopy(FONT_SET, 0, mem, 0, 80);
     }
 
-    public int loadGame(File file) {
+    public int loadRom(File file) {
         try {
             FileInputStream in = new FileInputStream(file);
             int nextByte;
@@ -79,7 +83,7 @@ public class Chip8 {
             in.close();
             return i - 0x200;
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error loading rom: " + e.getMessage());
             return -1;
         }
     }
@@ -88,14 +92,14 @@ public class Chip8 {
         Graphics2D g = image.createGraphics();
 
         g.setColor(Color.darkGray);
-        g.fillRect(0, 0, 512, 256);
+        g.fillRect(0, 0, SCREEN_WIDTH * SCREEN_MODIFIER, SCREEN_HEIGHT * SCREEN_MODIFIER);
 
         g.setColor(Color.green);
-        for (int y = 0; y < 32; y++) {
-            for (int x = 0; x < 64; x++) {
+        for (int y = 0; y < SCREEN_HEIGHT; y++) {
+            for (int x = 0; x < SCREEN_WIDTH; x++) {
                 for (int bit = 0; bit < 8; bit++) {
                     if ((gfx[y][x] & (128 >> bit)) != 0) {
-                        g.fillRect(x * 8 + bit * 8, y * 8, 8, 8);
+                        g.fillRect((x + bit) * SCREEN_MODIFIER, y * SCREEN_MODIFIER, SCREEN_MODIFIER, SCREEN_MODIFIER);
                     }
                 }
             }

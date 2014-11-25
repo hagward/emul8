@@ -11,16 +11,17 @@ public class Main {
         JFrame frame = new JFrame("Hemligt program");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        final Screen screen = new Screen();
+        final Screen screen = new Screen(Chip8.SCREEN_WIDTH * Chip8.SCREEN_MODIFIER, Chip8.SCREEN_HEIGHT * Chip8.SCREEN_MODIFIER);
         frame.setContentPane(screen);
 
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
+//        String fileName = "games/PONG";
         final Chip8 chip8 = new Chip8();
-        String fileName = "tests/invaders.c8";
-        int fileSize = chip8.loadGame(new File(fileName));
+        String fileName = "games/TETRIS";
+        int fileSize = chip8.loadRom(new File(fileName));
         System.out.printf("Read %s of size %d bytes.%n", fileName, fileSize);
 
         frame.addKeyListener(new KeyListener() {
