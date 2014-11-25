@@ -8,7 +8,7 @@ import java.io.File;
 public class Main {
 
     public Main() {
-        JFrame frame = new JFrame("Hemligt program");
+        JFrame frame = new JFrame("EMUL8");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         final Screen screen = new Screen(Chip8.SCREEN_WIDTH * Chip8.SCREEN_MODIFIER, Chip8.SCREEN_HEIGHT * Chip8.SCREEN_MODIFIER);
@@ -18,9 +18,8 @@ public class Main {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-//        String fileName = "games/PONG";
         final Chip8 chip8 = new Chip8();
-        String fileName = "games/TETRIS";
+        String fileName = "games/GUESS";
         int fileSize = chip8.loadRom(new File(fileName));
         System.out.printf("Read %s of size %d bytes.%n", fileName, fileSize);
 
@@ -43,7 +42,7 @@ public class Main {
             }
         });
 
-        Timer timer = new Timer(40, e -> {
+        Timer timer = new Timer(16, e -> {
             chip8.emulateCycle();
             if (chip8.isGfxUpdated()) {
                 chip8.drawToImage(screen.getImage());

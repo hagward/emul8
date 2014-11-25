@@ -90,17 +90,14 @@ public class Chip8 {
 
     public void drawToImage(BufferedImage image) {
         Graphics2D g = image.createGraphics();
-
         g.setColor(Color.darkGray);
         g.fillRect(0, 0, SCREEN_WIDTH * SCREEN_MODIFIER, SCREEN_HEIGHT * SCREEN_MODIFIER);
 
-        g.setColor(Color.green);
         for (int y = 0; y < SCREEN_HEIGHT; y++) {
             for (int x = 0; x < SCREEN_WIDTH; x++) {
-                for (int bit = 0; bit < 8; bit++) {
-                    if ((gfx[y][x] & (128 >> bit)) != 0) {
-                        g.fillRect((x + bit) * SCREEN_MODIFIER, y * SCREEN_MODIFIER, SCREEN_MODIFIER, SCREEN_MODIFIER);
-                    }
+                if (gfx[y][x] != 0) {
+                    g.setColor(Color.green);
+                    g.fillRect(x * SCREEN_MODIFIER, y * SCREEN_MODIFIER, SCREEN_MODIFIER, SCREEN_MODIFIER);
                 }
             }
         }
@@ -339,11 +336,13 @@ public class Chip8 {
                     pixels = mem[index + yLine];
                     // Scan through each of the eight bits in the row.
                     for (int xLine = 0; xLine < 8; xLine++) {
+                        int currX = reg[x] + xLine;
+                        int currY = reg[y] + yLine;
                         if ((pixels & (128 >> xLine)) != 0) {
-                            if (gfx[y + yLine][x + xLine] == 1) {
+                            if (gfx[currY][currX] == 1) {
                                 reg[0xF] = 1;
                             }
-                            gfx[y + yLine][x + xLine] ^= 1;
+                            gfx[currY][currX] ^= 1;
                         }
                     }
                 }
@@ -453,11 +452,13 @@ public class Chip8 {
 
                     default:
                         System.out.printf("Unknown opcode [0xF000]: 0x%x%n", opCode);
+                        pc += 2;
                 }
                 break;
 
             default:
                 System.out.printf("Unknown opcode: 0x%x%n", opCode);
+                pc += 2;
         }
 
         // Update timers.
