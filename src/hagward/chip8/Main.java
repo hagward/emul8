@@ -12,7 +12,7 @@ public class Main {
 	}
 
     public Main(String romFileName) {
-        JFrame frame = new JFrame("EMUL8 - " + romFileName);
+        final JFrame frame = new JFrame("EMUL8 - " + romFileName);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         final Screen screen = new Screen(Chip8.SCREEN_WIDTH * Chip8.SCREEN_MODIFIER, Chip8.SCREEN_HEIGHT * Chip8.SCREEN_MODIFIER);
@@ -38,12 +38,12 @@ public class Main {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     System.exit(0);
                 }
-                chip8.keyPress(e.getKeyChar());
+                chip8.setKey(e.getKeyChar(), true);
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                chip8.keyRelease(e.getKeyChar());
+                chip8.setKey(e.getKeyChar(), false);
             }
         });
         
@@ -60,7 +60,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-    	args = new String[] { "", "roms/BLITZ" };
+    	args = new String[] { "", "roms/TETRIS" };
     	if (args.length != 2) {
     		System.out.println("Usage: emul8 <rom>");
     	} else {

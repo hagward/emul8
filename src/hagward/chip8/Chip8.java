@@ -5,8 +5,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Chip8 {
+
     private static final int[] FONT_SET = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -29,6 +33,31 @@ public class Chip8 {
     public static final int SCREEN_WIDTH = 64;
     public static final int SCREEN_HEIGHT = 32;
     public static final int SCREEN_MODIFIER = 20;
+    
+    private static final Map<Character, Integer> keyMap;
+    static {
+    	Map<Character, Integer> m = new HashMap<>();
+    	m.put('1', 1);
+    	m.put('2', 2);
+    	m.put('3', 3);
+    	m.put('4', 12);
+
+    	m.put('q', 4);
+    	m.put('w', 5);
+    	m.put('e', 6);
+    	m.put('r', 13);
+
+    	m.put('a', 7);
+    	m.put('s', 8);
+    	m.put('d', 9);
+    	m.put('f', 14);
+
+    	m.put('z', 10);
+    	m.put('x', 0);
+    	m.put('c', 11);
+    	m.put('v', 15);
+    	keyMap = Collections.unmodifiableMap(m);
+    }
 
     private int opCode;
     private int index;
@@ -105,55 +134,12 @@ public class Chip8 {
         g.dispose();
         gfxUpdated = false;
     }
-
-    public void keyPress(char keyChar) {
-        if (keyChar == '1') key[1] = 1;
-        else if (keyChar == '2') key[2] = 1;
-        else if (keyChar == '3') key[3] = 1;
-        else if (keyChar == '4') key[12] = 1;
-
-        else if (keyChar == 'q') key[4] = 1;
-        else if (keyChar == 'w') key[5] = 1;
-        else if (keyChar == 'e') key[6] = 1;
-        else if (keyChar == 'r') key[13] = 1;
-
-        else if (keyChar == 'a') key[7] = 1;
-        else if (keyChar == 's') key[8] = 1;
-        else if (keyChar == 'd') key[9] = 1;
-        else if (keyChar == 'f') key[14] = 1;
-
-        else if (keyChar == 'z') key[10] = 1;
-        else if (keyChar == 'x') key[0] = 1;
-        else if (keyChar == 'c') key[11] = 1;
-        else if (keyChar == 'v') key[15] = 1;
-        
-//        System.out.println(keyChar + " pressed");
-//        System.out.println(Arrays.toString(key));
-    }
-
-    public void keyRelease(char keyChar) {
-        if (keyChar == '1') key[1] = 0;
-        else if (keyChar == '2') key[2] = 0;
-        else if (keyChar == '3') key[3] = 0;
-        else if (keyChar == '4') key[12] = 0;
-
-        else if (keyChar == 'q') key[4] = 0;
-        else if (keyChar == 'w') key[5] = 0;
-        else if (keyChar == 'e') key[6] = 0;
-        else if (keyChar == 'r') key[13] = 0;
-
-        else if (keyChar == 'a') key[7] = 0;
-        else if (keyChar == 's') key[8] = 0;
-        else if (keyChar == 'd') key[9] = 0;
-        else if (keyChar == 'f') key[14] = 0;
-
-        else if (keyChar == 'z') key[10] = 0;
-        else if (keyChar == 'x') key[0] = 0;
-        else if (keyChar == 'c') key[11] = 0;
-        else if (keyChar == 'v') key[15] = 0;
-
-//        System.out.println(keyChar + " released");
-//        System.out.println(Arrays.toString(key));
+    
+    public void setKey(char keyChar, boolean pressed) {
+    	Integer keyIndex = keyMap.get(keyChar);
+    	if (keyIndex != null) {
+    		key[keyIndex] = (pressed) ? 1 : 0;
+    	}
     }
 
     public boolean isGfxUpdated() {
