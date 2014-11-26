@@ -12,7 +12,8 @@ public class Main {
 	}
 
     public Main(String romFileName) {
-        final JFrame frame = new JFrame("EMUL8 - " + romFileName);
+    	final String frameTitle = "EMUL8 - " + romFileName;
+        final JFrame frame = new JFrame(frameTitle);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         final Screen screen = new Screen(Chip8.SCREEN_WIDTH * Chip8.SCREEN_MODIFIER, Chip8.SCREEN_HEIGHT * Chip8.SCREEN_MODIFIER);
@@ -50,8 +51,10 @@ public class Main {
             	case KeyEvent.VK_P:
             		if (timer.isRunning()) {
             			timer.stop();
+            			frame.setTitle(frameTitle + " (paused)");
             		} else {
             			timer.start();
+            			frame.setTitle(frameTitle);
             		}
             		break;
 
