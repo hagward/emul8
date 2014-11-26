@@ -6,6 +6,10 @@ import java.awt.event.KeyListener;
 import java.io.File;
 
 public class Main {
+	
+	public static void printDebug(String s) {
+		System.out.println("dbg: " + s);
+	}
 
     public Main() {
         JFrame frame = new JFrame("EMUL8");
@@ -19,7 +23,7 @@ public class Main {
         frame.setVisible(true);
 
         final Chip8 chip8 = new Chip8();
-        String fileName = "games/GUESS";
+        String fileName = "games/TETRIS";
         int fileSize = chip8.loadRom(new File(fileName));
         System.out.printf("Read %s of size %d bytes.%n", fileName, fileSize);
 
@@ -42,7 +46,7 @@ public class Main {
             }
         });
 
-        Timer timer = new Timer(16, e -> {
+        Timer timer = new Timer(8, e -> {
             chip8.emulateCycle();
             if (chip8.isGfxUpdated()) {
                 chip8.drawToImage(screen.getImage());

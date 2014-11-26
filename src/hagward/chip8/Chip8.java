@@ -126,28 +126,34 @@ public class Chip8 {
         else if (keyChar == 'x') key[0] = 1;
         else if (keyChar == 'c') key[11] = 1;
         else if (keyChar == 'v') key[15] = 1;
+        
+//        System.out.println(keyChar + " pressed");
+//        System.out.println(Arrays.toString(key));
     }
 
     public void keyRelease(char keyChar) {
-        if (keyChar == '1') key[1] = 1;
-        else if (keyChar == '2') key[2] = 1;
-        else if (keyChar == '3') key[3] = 1;
-        else if (keyChar == '4') key[12] = 1;
+        if (keyChar == '1') key[1] = 0;
+        else if (keyChar == '2') key[2] = 0;
+        else if (keyChar == '3') key[3] = 0;
+        else if (keyChar == '4') key[12] = 0;
 
-        else if (keyChar == 'q') key[4] = 1;
-        else if (keyChar == 'w') key[5] = 1;
-        else if (keyChar == 'e') key[6] = 1;
-        else if (keyChar == 'r') key[13] = 1;
+        else if (keyChar == 'q') key[4] = 0;
+        else if (keyChar == 'w') key[5] = 0;
+        else if (keyChar == 'e') key[6] = 0;
+        else if (keyChar == 'r') key[13] = 0;
 
-        else if (keyChar == 'a') key[7] = 1;
-        else if (keyChar == 's') key[8] = 1;
-        else if (keyChar == 'd') key[9] = 1;
-        else if (keyChar == 'f') key[14] = 1;
+        else if (keyChar == 'a') key[7] = 0;
+        else if (keyChar == 's') key[8] = 0;
+        else if (keyChar == 'd') key[9] = 0;
+        else if (keyChar == 'f') key[14] = 0;
 
-        else if (keyChar == 'z') key[10] = 1;
-        else if (keyChar == 'x') key[0] = 1;
-        else if (keyChar == 'c') key[11] = 1;
-        else if (keyChar == 'v') key[15] = 1;
+        else if (keyChar == 'z') key[10] = 0;
+        else if (keyChar == 'x') key[0] = 0;
+        else if (keyChar == 'c') key[11] = 0;
+        else if (keyChar == 'v') key[15] = 0;
+
+//        System.out.println(keyChar + " released");
+//        System.out.println(Arrays.toString(key));
     }
 
     public boolean isGfxUpdated() {
@@ -331,14 +337,23 @@ public class Chip8 {
                 int pixels;
 
                 reg[0xF] = 0;
-                for (int yLine = 0; yLine < height; yLine++) {
+                outer: for (int i = 0; i < height; i++) {
                     // Fetch a row of pixels.
-                    pixels = mem[index + yLine];
+                    pixels = mem[index + i];
                     // Scan through each of the eight bits in the row.
-                    for (int xLine = 0; xLine < 8; xLine++) {
-                        int currX = reg[x] + xLine;
-                        int currY = reg[y] + yLine;
-                        if ((pixels & (128 >> xLine)) != 0) {
+                    for (int j = 0; j < 8; j++) {
+                        int currX = reg[x] + j;
+                        int currY = reg[y] + i;
+                        
+                        // TODO: Maybe wrap around the screen instead?
+                        if (currX >= SCREEN_WIDTH) {
+                        	break;
+                        }
+                        if (currY >= SCREEN_HEIGHT) {
+                        	break outer;
+                        }
+                        
+                        if ((pixels & (128 >> j)) != 0) {
                             if (gfx[currY][currX] == 1) {
                                 reg[0xF] = 1;
                             }
