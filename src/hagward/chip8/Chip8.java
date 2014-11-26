@@ -141,7 +141,7 @@ public class Chip8 {
     		key[keyIndex] = (pressed) ? 1 : 0;
     	}
     }
-
+    
     public boolean isGfxUpdated() {
         return gfxUpdated;
     }

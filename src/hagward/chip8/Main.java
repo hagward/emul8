@@ -28,6 +28,14 @@ public class Main {
         }
         System.out.printf("Read %s of size %d bytes.%n", romFileName, fileSize);
 
+        final Timer timer = new Timer(8, e -> {
+            chip8.emulateCycle();
+            if (chip8.isGfxUpdated()) {
+                chip8.drawToImage(screen.getImage());
+                screen.repaint();
+            }
+        });
+
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -35,10 +43,21 @@ public class Main {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    System.exit(0);
-                }
-                chip8.setKey(e.getKeyChar(), true);
+            	switch (e.getKeyCode()) {
+            	case KeyEvent.VK_ESCAPE:
+            		System.exit(0);
+
+            	case KeyEvent.VK_P:
+            		if (timer.isRunning()) {
+            			timer.stop();
+            		} else {
+            			timer.start();
+            		}
+            		break;
+
+            	default:
+            		chip8.setKey(e.getKeyChar(), true);
+            	}
             }
 
             @Override
@@ -49,13 +68,6 @@ public class Main {
         
         frame.setVisible(true);
 
-        Timer timer = new Timer(8, e -> {
-            chip8.emulateCycle();
-            if (chip8.isGfxUpdated()) {
-                chip8.drawToImage(screen.getImage());
-                screen.repaint();
-            }
-        });
         timer.start();
     }
 
