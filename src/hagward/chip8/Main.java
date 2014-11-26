@@ -11,8 +11,8 @@ public class Main {
 		System.out.println("dbg: " + s);
 	}
 
-    public Main() {
-        JFrame frame = new JFrame("EMUL8");
+    public Main(String romFileName) {
+        JFrame frame = new JFrame("EMUL8 - " + romFileName);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         final Screen screen = new Screen(Chip8.SCREEN_WIDTH * Chip8.SCREEN_MODIFIER, Chip8.SCREEN_HEIGHT * Chip8.SCREEN_MODIFIER);
@@ -20,12 +20,13 @@ public class Main {
 
         frame.pack();
         frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
 
         final Chip8 chip8 = new Chip8();
-        String fileName = "games/TETRIS";
-        int fileSize = chip8.loadRom(new File(fileName));
-        System.out.printf("Read %s of size %d bytes.%n", fileName, fileSize);
+        int fileSize = chip8.loadRom(new File(romFileName));
+        if (fileSize == -1) {
+        	System.exit(1);
+        }
+        System.out.printf("Read %s of size %d bytes.%n", romFileName, fileSize);
 
         frame.addKeyListener(new KeyListener() {
             @Override
@@ -45,6 +46,8 @@ public class Main {
                 chip8.keyRelease(e.getKeyChar());
             }
         });
+        
+        frame.setVisible(true);
 
         Timer timer = new Timer(8, e -> {
             chip8.emulateCycle();
@@ -57,6 +60,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        new Main();
+    	args = new String[] { "", "roms/BLITZ" };
+    	if (args.length != 2) {
+    		System.out.println("Usage: emul8 <rom>");
+    	} else {
+    		new Main(args[1]);
+    	}
     }
 }

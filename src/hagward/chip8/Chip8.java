@@ -28,7 +28,7 @@ public class Chip8 {
 
     public static final int SCREEN_WIDTH = 64;
     public static final int SCREEN_HEIGHT = 32;
-    public static final int SCREEN_MODIFIER = 10;
+    public static final int SCREEN_MODIFIER = 20;
 
     private int opCode;
     private int index;
