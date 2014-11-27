@@ -310,8 +310,7 @@ public class Chip8 {
 
             // CXNN: Sets VX to a random number and NN.
             case 0xC000:
-                reg[x] = (int) (Math.random() * 256);
-                reg[x] &= opCode & 0x00FF;
+                reg[x] = ((int) (Math.random() * 0xFF)) & (opCode & 0x00FF);
                 pc += 2;
                 break;
 
@@ -323,7 +322,7 @@ public class Chip8 {
                 int pixels;
 
                 reg[0xF] = 0;
-                outer: for (int i = 0; i < height; i++) {
+                for (int i = 0; i < height; i++) {
                     // Fetch a row of pixels.
                     pixels = mem[index + i];
                     // Scan through each of the eight bits in the row.
@@ -331,14 +330,14 @@ public class Chip8 {
                         int currX = reg[x] + j;
                         int currY = reg[y] + i;
                         
-                        // TODO: Maybe wrap around the screen instead?
+                        // Wrap around the screen if outside bounds.
                         if (currX >= SCREEN_WIDTH) {
-                        	break;
+                        	currX -= SCREEN_WIDTH;
                         }
                         if (currY >= SCREEN_HEIGHT) {
-                        	break outer;
+                        	currY -= SCREEN_HEIGHT;
                         }
-                        
+
                         if ((pixels & (128 >> j)) != 0) {
                             if (gfx[currY][currX] == 1) {
                                 reg[0xF] = 1;
