@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Memory {
 
-	private static final int[] FONT_SET = {
+    private static final int[] FONT_SET = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
             0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -20,29 +20,29 @@ public class Memory {
             0xF0, 0x80, 0x80, 0x80, 0xF0, // C
             0xE0, 0x90, 0x90, 0x90, 0xE0, // D
             0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-            0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+            0xF0, 0x80, 0xF0, 0x80, 0x80 // F
     };
 
-	private int[] memory;
-	
-	public Memory() {
+    private int[] memory;
+
+    public Memory() {
         memory = new int[4096];
         reset();
-	}
-	
-	public void reset() {
-		Arrays.fill(memory, 0);
+    }
+
+    public void reset() {
+        Arrays.fill(memory, 0);
 
         // Load font set.
         System.arraycopy(FONT_SET, 0, memory, 0, 80);
-	}
-	
-	public int getByte(int location) {
-		return memory[location];
-	}
-	
-	public void setByte(int location, int value) {
-		memory[location] = value;
-	}
+    }
+
+    public int getByte(int location) {
+        return memory[location];
+    }
+
+    public void setByte(int location, int value) {
+        memory[location] = value;
+    }
 
 }
