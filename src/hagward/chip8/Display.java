@@ -1,13 +1,21 @@
 package hagward.chip8;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class Screen extends JPanel {
+import javax.swing.JPanel;
+
+@SuppressWarnings("serial")
+public class Display extends JPanel {
+
+    public static final int DISPLAY_WIDTH = 64;
+    public static final int DISPLAY_HEIGHT = 32;
+    public static final int DISPLAY_MODIFIER = 20;
+
     private final BufferedImage image;
 
-    public Screen(int width, int height) {
+    public Display(int width, int height) {
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         setPreferredSize(new Dimension(width, height));
     }
@@ -21,4 +29,5 @@ public class Screen extends JPanel {
         super.paintComponent(g);
         g.drawImage(image, 0, 0, null);
     }
+
 }

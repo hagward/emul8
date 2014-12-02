@@ -1,9 +1,11 @@
 package hagward.chip8;
 
-import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 public class Main {
 
@@ -16,30 +18,21 @@ public class Main {
         final JFrame frame = new JFrame(frameTitle);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        final Screen screen = new Screen(Chip8.SCREEN_WIDTH * Chip8.SCREEN_MODIFIER,
-                Chip8.SCREEN_HEIGHT * Chip8.SCREEN_MODIFIER);
-        frame.setContentPane(screen);
+        final Display display = new Display(Display.DISPLAY_WIDTH * Display.DISPLAY_MODIFIER,
+                Display.DISPLAY_HEIGHT * Display.DISPLAY_MODIFIER);
+        frame.setContentPane(display);
 
         frame.pack();
         frame.setLocationRelativeTo(null);
 
-        final Chip8 chip8 = new Chip8();
-        int fileSize = chip8.loadRom(new File(romFileName));
+        final Keyboard keyboard = new Keyboard();
+        final Chip8 chip8 = new Chip8(display, keyboard);
+        final File romFile = new File(romFileName);
+        int fileSize = chip8.loadRom(romFile);
         if (fileSize == -1) {
             System.exit(1);
         }
         System.out.printf("Read %s of size %d bytes.%n", romFileName, fileSize);
-
-        final Timer timer = new Timer(16, e -> {
-            for (int i = 0; i < 10; i++) {
-                chip8.emulateCycle();
-            }
-
-            if (chip8.isGfxUpdated()) {
-                chip8.drawToImage(screen.getImage());
-                screen.repaint();
-            }
-        });
 
         frame.addKeyListener(new KeyListener() {
             @Override
@@ -53,13 +46,19 @@ public class Main {
                     System.exit(0);
 
                 case KeyEvent.VK_P:
-                    if (timer.isRunning()) {
-                        timer.stop();
+                    // TODO: Pause/resume the emulation.
+                    if (chip8.isRunning()) {
+                        chip8.stop();
                         frame.setTitle(frameTitle + " (paused)");
                     } else {
-                        timer.start();
+                        chip8.start();
                         frame.setTitle(frameTitle);
                     }
+                    break;
+
+                case KeyEvent.VK_BACK_SPACE:
+                    chip8.reset();
+                    chip8.loadRom(romFile);
                     break;
 
                 default:
@@ -74,8 +73,7 @@ public class Main {
         });
 
         frame.setVisible(true);
-
-        timer.start();
+        chip8.start();
     }
 
     public static void main(String[] args) {
