@@ -2,6 +2,7 @@ package hagward.chip8;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
@@ -17,6 +18,12 @@ public class Display extends JPanel {
 
     public Display(int width, int height) {
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D g = image.createGraphics();
+        g.setColor(Video.bgColor);
+        g.fillRect(0, 0, width, height);
+        g.dispose();
+
         setPreferredSize(new Dimension(width, height));
     }
 

@@ -1,11 +1,15 @@
 package hagward.chip8;
 
 import java.awt.Color;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 public class Video {
+    
+    public static Color bgColor = Color.darkGray;
+    public static Color fgColor = Color.white;
 
     private boolean[][] gfx;
 
@@ -29,14 +33,14 @@ public class Video {
     public void flushVideo() {
         BufferedImage image = display.getImage();
         Graphics2D g = image.createGraphics();
-        g.setColor(Color.white);
+        g.setColor(bgColor);
         g.fillRect(0, 0, Display.DISPLAY_WIDTH * Display.DISPLAY_MODIFIER, Display.DISPLAY_HEIGHT
                 * Display.DISPLAY_MODIFIER);
 
         for (int y = 0; y < Display.DISPLAY_HEIGHT; y++) {
             for (int x = 0; x < Display.DISPLAY_WIDTH; x++) {
                 if (gfx[y][x]) {
-                    g.setColor(Color.green);
+                    g.setColor(fgColor);
                     g.fillRect(x * Display.DISPLAY_MODIFIER, y * Display.DISPLAY_MODIFIER,
                             Display.DISPLAY_MODIFIER, Display.DISPLAY_MODIFIER);
                 }
