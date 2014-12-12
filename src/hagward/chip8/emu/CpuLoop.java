@@ -1,4 +1,4 @@
-package hagward.chip8;
+package hagward.chip8.emu;
 
 public class CpuLoop implements Runnable {
 

@@ -1,4 +1,6 @@
-package hagward.chip8;
+package hagward.chip8.emu;
+
+import hagward.chip8.gui.Display;
 
 import java.awt.Color;
 

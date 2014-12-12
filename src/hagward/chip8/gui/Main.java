@@ -1,25 +1,23 @@
-package hagward.chip8;
+package hagward.chip8.gui;
 
-import java.awt.event.ActionEvent;
+import hagward.chip8.emu.Chip8;
+import hagward.chip8.emu.Keyboard;
+
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 public class Main {
     
-    private static String windowTitle = "EMUL8";
+    private static final String windowTitle = "EMUL8";
     
     private final Chip8 chip8;
     private final JFrame frame;
+
+    private JLabel statusLabel;
     
     public static void printDebug(String s) {
         System.out.println("dbg: " + s);
@@ -31,60 +29,11 @@ public class Main {
         final Keyboard keyboard = new Keyboard();
         chip8 = new Chip8(display, keyboard);
         frame = createAndShowGui(display);
-        
-        /*
-        final File romFile = new File(romFileName);
-        int fileSize = chip8.loadRom(romFile);
-        if (fileSize == -1) {
-            System.exit(1);
-        }
-        System.out.printf("Read %s of size %d bytes.%n", romFileName, fileSize);
-
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                case KeyEvent.VK_ESCAPE:
-                    System.exit(0);
-
-                case KeyEvent.VK_P:
-                    // TODO: Pause/resume the emulation.
-                    if (chip8.isRunning()) {
-                        chip8.stop();
-                        frame.setTitle(frameTitle + " (paused)");
-                    } else {
-                        chip8.start();
-                        frame.setTitle(frameTitle);
-                    }
-                    break;
-
-                case KeyEvent.VK_BACK_SPACE:
-                    chip8.reset();
-                    chip8.loadRom(romFile);
-                    break;
-
-                default:
-                    chip8.setKey(e.getKeyChar(), true);
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                chip8.setKey(e.getKeyChar(), false);
-            }
-        });
-
-        frame.setVisible(true);
-        chip8.start();
-        */
     }
     
     public JFrame createAndShowGui(JPanel contentPane) {
         final JFrame frame = new JFrame(windowTitle);
+        frame.setLayout(new BorderLayout());
         
         final JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
@@ -117,32 +66,33 @@ public class Main {
         programMenu.add(resetMenuItem);
         
         // TODO: @refactor this into something more elegant.
-        final ActionListener menuListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == openMenuItem) {
-                    File romFile = getRomFromFileChooser();
-                    if (romFile != null) {
-                        chip8.reset();
-                        chip8.loadRom(romFile);
-                        chip8.start();
-                    }
-                } else if (e.getSource() == quitMenuItem) {
-                    System.exit(0);
-                } else if (e.getSource() == startMenuItem) {
-                    chip8.start();
-                } else if (e.getSource() == stopMenuItem) {
-                    chip8.stop();
-                    chip8.reset();
-                } else if (e.getSource() == pauseMenuItem) {
-                    if (chip8.isRunning()) {
-                        chip8.stop();
-                    } else {
-                        chip8.start();
-                    }
-                } else if (e.getSource() == resetMenuItem) {
-                    chip8.reset();
+        final ActionListener menuListener = e -> {
+            if (e.getSource() == openMenuItem) {
+                File romFile = getRomFromFileChooser();
+                if (romFile == null) {
+                    return;
                 }
+                chip8.reset();
+                int romSize = chip8.loadRom(romFile);
+                chip8.start();
+                statusLabel.setText(String.format("Loaded %s of %d bytes.", romFile.getName(), romSize));
+            } else if (e.getSource() == quitMenuItem) {
+                System.exit(0);
+            } else if (e.getSource() == startMenuItem) {
+                chip8.start();
+            } else if (e.getSource() == stopMenuItem) {
+                chip8.stop();
+                chip8.reset();
+            } else if (e.getSource() == pauseMenuItem) {
+                if (chip8.isRunning()) {
+                    chip8.stop();
+                    statusLabel.setText("Paused.");
+                } else {
+                    chip8.start();
+                    statusLabel.setText("Running.");
+                }
+            } else if (e.getSource() == resetMenuItem) {
+                chip8.reset();
             }
         };
         openMenuItem.addActionListener(menuListener);
@@ -151,8 +101,13 @@ public class Main {
         stopMenuItem.addActionListener(menuListener);
         pauseMenuItem.addActionListener(menuListener);
         resetMenuItem.addActionListener(menuListener);
-        
-        frame.setContentPane(contentPane);
+
+        JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        statusLabel = new JLabel("Ready.");
+        statusBar.add(statusLabel);
+
+        frame.add(contentPane, BorderLayout.CENTER);
+        frame.add(statusBar, BorderLayout.SOUTH);
         frame.pack();
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

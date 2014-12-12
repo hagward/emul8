@@ -1,4 +1,6 @@
-package hagward.chip8;
+package hagward.chip8.gui;
+
+import hagward.chip8.emu.Video;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
