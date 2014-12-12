@@ -13,12 +13,15 @@ public class Chip8 {
     private final Memory memory;
     private final Video video;
 
+    private File romFile;
+
     public Chip8(Display display, Keyboard keyboard) {
         this.keyboard = keyboard;
 
         memory = new Memory();
         video = new Video(display);
         cpu = new Cpu(memory, video, keyboard);
+        romFile = null;
     }
 
     public void reset() {
@@ -49,11 +52,16 @@ public class Chip8 {
                 memory.setByte(i++, nextByte);
             }
             in.close();
+            romFile = file;
             return i - 0x200;
         } catch (Exception e) {
             System.out.println("Error loading rom: " + e.getMessage());
             return -1;
         }
+    }
+
+    public File getRom() {
+        return romFile;
     }
 
     public void setKey(char keyChar, boolean pressed) {
