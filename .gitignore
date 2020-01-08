@@ -1,6 +1,3 @@
-.idea
-games
-out
-emul8.iml
-/bin/
-/roms/
+/.gradle/
+/.idea/
+/build/

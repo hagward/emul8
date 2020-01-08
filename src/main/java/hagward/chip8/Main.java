@@ -6,13 +6,12 @@ import java.awt.event.KeyListener;
 import java.io.File;
 
 public class Main {
-	
-	public static void printDebug(String s) {
-		System.out.println("dbg: " + s);
-	}
+    public static void printDebug(String s) {
+        System.out.println("dbg: " + s);
+    }
 
     public Main(String romFileName) {
-    	final String frameTitle = "EMUL8 - " + romFileName;
+        final String frameTitle = "EMUL8 - " + romFileName;
         final JFrame frame = new JFrame(frameTitle);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -25,14 +24,14 @@ public class Main {
         final Chip8 chip8 = new Chip8();
         int fileSize = chip8.loadRom(new File(romFileName));
         if (fileSize == -1) {
-        	System.exit(1);
+            System.exit(1);
         }
         System.out.printf("Read %s of size %d bytes.%n", romFileName, fileSize);
 
         final Timer timer = new Timer(16, e -> {
-        	for (int i = 0; i < 10; i++) {
-        		chip8.emulateCycle();
-        	}
+            for (int i = 0; i < 10; i++) {
+                chip8.emulateCycle();
+            }
 
             if (chip8.isGfxUpdated()) {
                 chip8.drawToImage(screen.getImage());
@@ -47,23 +46,23 @@ public class Main {
 
             @Override
             public void keyPressed(KeyEvent e) {
-            	switch (e.getKeyCode()) {
-            	case KeyEvent.VK_ESCAPE:
-            		System.exit(0);
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_ESCAPE:
+                        System.exit(0);
 
-            	case KeyEvent.VK_P:
-            		if (timer.isRunning()) {
-            			timer.stop();
-            			frame.setTitle(frameTitle + " (paused)");
-            		} else {
-            			timer.start();
-            			frame.setTitle(frameTitle);
-            		}
-            		break;
+                    case KeyEvent.VK_P:
+                        if (timer.isRunning()) {
+                            timer.stop();
+                            frame.setTitle(frameTitle + " (paused)");
+                        } else {
+                            timer.start();
+                            frame.setTitle(frameTitle);
+                        }
+                        break;
 
-            	default:
-            		chip8.setKey(e.getKeyChar(), true);
-            	}
+                    default:
+                        chip8.setKey(e.getKeyChar(), true);
+                }
             }
 
             @Override
@@ -71,18 +70,17 @@ public class Main {
                 chip8.setKey(e.getKeyChar(), false);
             }
         });
-        
+
         frame.setVisible(true);
 
         timer.start();
     }
 
     public static void main(String[] args) {
-    	args = new String[] { "", "roms/INVADERS" };
-    	if (args.length != 2) {
-    		System.out.println("Usage: emul8 <rom>");
-    	} else {
-    		new Main(args[1]);
-    	}
+        if (args.length != 1) {
+            System.out.println("Usage: emul8 <rom>");
+        } else {
+            new Main(args[0]);
+        }
     }
 }

@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Chip8 {
-
     private static final int[] FONT_SET = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -33,30 +32,30 @@ public class Chip8 {
     public static final int SCREEN_WIDTH = 64;
     public static final int SCREEN_HEIGHT = 32;
     public static final int SCREEN_MODIFIER = 20;
-    
+
     private static final Map<Character, Integer> keyMap;
     static {
-    	Map<Character, Integer> m = new HashMap<>();
-    	m.put('1', 1);
-    	m.put('2', 2);
-    	m.put('3', 3);
-    	m.put('4', 12);
+        Map<Character, Integer> m = new HashMap<>();
+        m.put('1', 1);
+        m.put('2', 2);
+        m.put('3', 3);
+        m.put('4', 12);
 
-    	m.put('q', 4);
-    	m.put('w', 5);
-    	m.put('e', 6);
-    	m.put('r', 13);
+        m.put('q', 4);
+        m.put('w', 5);
+        m.put('e', 6);
+        m.put('r', 13);
 
-    	m.put('a', 7);
-    	m.put('s', 8);
-    	m.put('d', 9);
-    	m.put('f', 14);
+        m.put('a', 7);
+        m.put('s', 8);
+        m.put('d', 9);
+        m.put('f', 14);
 
-    	m.put('z', 10);
-    	m.put('x', 0);
-    	m.put('c', 11);
-    	m.put('v', 15);
-    	keyMap = Collections.unmodifiableMap(m);
+        m.put('z', 10);
+        m.put('x', 0);
+        m.put('c', 11);
+        m.put('v', 15);
+        keyMap = Collections.unmodifiableMap(m);
     }
 
     private int opCode;
@@ -134,14 +133,14 @@ public class Chip8 {
         g.dispose();
         gfxUpdated = false;
     }
-    
+
     public void setKey(char keyChar, boolean pressed) {
-    	Integer keyIndex = keyMap.get(keyChar);
-    	if (keyIndex != null) {
-    		key[keyIndex] = (pressed) ? 1 : 0;
-    	}
+        Integer keyIndex = keyMap.get(keyChar);
+        if (keyIndex != null) {
+            key[keyIndex] = (pressed) ? 1 : 0;
+        }
     }
-    
+
     public boolean isGfxUpdated() {
         return gfxUpdated;
     }
@@ -329,13 +328,13 @@ public class Chip8 {
                     for (int j = 0; j < 8; j++) {
                         int currX = reg[x] + j;
                         int currY = reg[y] + i;
-                        
+
                         // Wrap around the screen if outside bounds.
                         if (currX >= SCREEN_WIDTH) {
-                        	currX -= SCREEN_WIDTH;
+                            currX -= SCREEN_WIDTH;
                         }
                         if (currY >= SCREEN_HEIGHT) {
-                        	currY -= SCREEN_HEIGHT;
+                            currY -= SCREEN_HEIGHT;
                         }
 
                         if ((pixels & (128 >> j)) != 0) {
